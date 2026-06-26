@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>收银台 · 尊享御品臻选</title>
+    <style>
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 顶部状态栏提示 */
+        .top-notice {
+            background: #fff3f3;
+            color: #d70015;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-bottom: 1px solid #fbc4c4;
+        }
+
+        /* 主体容器 - 自动双端居中 */
+        .container {
+            flex: 1;
+            max-width: 550px;
+            width: calc(100% - 24px);
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 30px 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            text-align: center;
+        }
+
+        /* 安全图标 */
+        .icon-box {
+            width: 72px;
+            height: 72px;
+            background: #fdf1f1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+        }
+
+        .icon-box svg {
+            width: 38px;
+            height: 38px;
+            fill: #d70015;
+        }
+
+        /* 标题与文字 */
+        h2 {
+            font-size: 1.4rem;
+            color: #1d1d1f;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #86868b;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* 订单详情块 */
+        .order-card {
+            background: #f5f5f7;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 35px;
+            text-align: left;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .order-item:last-child {
+            margin-bottom: 0;
+            padding-top: 12px;
+            border-top: 1px dashed #e5e5e5;
+        }
+
+        .label {
+            color: #86868b;
+        }
+
+        .value {
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        .value.highlight {
+            color: #d70015;
+        }
+
+        /* 核心动作按钮 */
+        .btn-connect {
+            background: #d70015;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 30px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(215, 0, 21, 0.2);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-connect:active {
+            transform: scale(0.98);
+            background: #b50012;
+        }
+
+        /* 手动复制备用文字 */
+        .backup-text {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #86868b;
+        }
+
+        .backup-text span {
+            color: #d70015;
+            font-weight: 600;
+            background: #fdf1f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px dashed #fbc4c4;
+            user-select: all;
+        }
+
+        /* 安全保障页脚 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.8rem;
+            color: #bfbfbfa3;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-notice">
+        ⚡ 您选择的尊享臻品已为您预留，请联系客服登记配送
+    </div>
+
+    <div class="container">
+        <div class="icon-box">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+            </svg>
+        </div>
+
+        <h2>确认购买与商务对接</h2>
+        <p class="subtitle">为了保障您的货品安全与物流时效，本平台采用高端一站式专属人工直连对接购买。</p>
+
+        <div class="order-card">
+            <div class="order-item">
+                <span class="label">意向商品</span>
+                <span class="value">尊享高端御品系列</span>
+            </div>
+            <div class="order-item">
+                <span class="label">商品状态</span>
+                <span class="value highlight">配货就绪 (待对接)</span>
+            </div>
+            <div class="order-item">
+                <span class="label">对接通道</span>
+                <span class="value">微信专属客服绿色通道</span>
+            </div>
+        </div>
+
+        <button class="btn-connect" onclick="copyAndOpenWX('whatareyou033')">
+            💬 点击这里：复制并跳转微信
+        </button>
+
+        <p class="backup-text">
+            若点击未触发，请手动添加微信号: <span>whatareyou033</span>
+        </p>
+    </div>
+
+    <footer>
+        🔒 独立加密通道 · 专属人工客服保障 · 尊享顺丰速运安全送达
+    </footer>
+
+    <script>
+    function copyAndOpenWX(text) {
+        // 1. 先执行原有的高效自动复制功能
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                triggerWX(text);
+            }).catch(err => {
+                fallbackCopy(text);
+            });
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    // 核心唤起与弹窗通知函数
+    function triggerWX(text) {
+        // 2. 尝试唤起手机微信客户端
+        window.location.href = "weixin://";
+
+        // 3. 弹出友好的高转化率操作指引
+        setTimeout(() => {
+            alert('🎉 复制成功并已尝试为您打开微信！\n\n微信号【' + text + '】已成功复制到剪贴板。\n\n请在微信中点击右上角“添加朋友”，长按输入框直接粘贴即可添加客服问价！');
+        }, 100);
+    }
+
+    function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.width = '1px';
+        textArea.style.height = '1px';
+        textArea.style.padding = '0';
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999); 
+        
+        try {
+            const successful = document.execCommand('copy');
+            if(successful) {
+                triggerWX(text);
+            } else {
+                alert('提示：自动复制失败，请长按页面下方的微信号【' + text + '】手动复制联系！');
+            }
+        } catch (err) {
+            alert('提示：自动复制失败，请长按页面下方的微信号【' + text + '】手动复制联系！');
+        }
+        document.body.removeChild(textArea);
+    }
+    </script>
+
+</body>
+</html>
