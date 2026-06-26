@@ -1,717 +1,329 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>烟草华章 · 尊享御品臻选</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>烟草华章 · 尊享御品臻选</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#f2f2f7;color:#1d1d1f;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+.crisp-client,#crisp-chatbox,div[class^="crisp-"]{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 
-        body {
-            background: #f2f2f7;
-            color: #1d1d1f;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding-bottom: calc(80px + env(safe-area-inset-bottom));
-        }
+/* Header */
+header{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.08);padding:calc(12px + env(safe-area-inset-top)) 16px 0}
+.header-top{display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+header h1{font-size:1.25rem;font-weight:700;color:#c0001a;letter-spacing:1px}
 
-        /* ── 顶部导航 ── */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 200;
-            background: rgba(255,255,255,0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(0,0,0,0.08);
-            padding: calc(12px + env(safe-area-inset-top)) 16px 0;
-        }
+/* Toolbar */
+.toolbar{display:flex;gap:8px;padding-bottom:10px;align-items:center}
+.search-wrap{flex:1;position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:#999;fill:none;stroke-width:2;stroke-linecap:round}
+#searchInput{width:100%;height:36px;border:none;border-radius:10px;background:#ebebf0;padding:0 10px 0 32px;font-size:.9rem;outline:none;color:#1d1d1f}
+#searchInput::placeholder{color:#aaa}
+.sort-btn{height:36px;padding:0 12px;border:none;border-radius:10px;background:#ebebf0;font-size:.82rem;color:#555;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.sort-btn svg{width:14px;height:14px;stroke:#777;fill:none;stroke-width:2;stroke-linecap:round}
+.sort-btn.active{background:#c0001a;color:#fff}
+.sort-btn.active svg{stroke:#fff}
 
-        .header-top {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
+/* Filters */
+.filter-bar{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{flex-shrink:0;height:28px;padding:0 12px;border-radius:14px;border:1px solid #ddd;background:#fff;font-size:.78rem;color:#555;cursor:pointer;white-space:nowrap;transition:all .15s}
+.filter-chip.active{background:#c0001a;border-color:#c0001a;color:#fff}
 
-        header h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #c0001a;
-            letter-spacing: 1px;
-        }
+/* Grid */
+.result-tip{padding:8px 16px 4px;font-size:.78rem;color:#999}
+.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 12px;max-width:1200px;margin:0 auto}
+@media(min-width:600px){.product-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.product-grid{grid-template-columns:repeat(4,1fr);gap:16px;padding:16px 20px}}
+@media(min-width:1100px){.product-grid{grid-template-columns:repeat(5,1fr)}}
 
-        /* ── 搜索 + 筛选栏 ── */
-        .toolbar {
-            display: flex;
-            gap: 8px;
-            padding-bottom: 10px;
-            align-items: center;
-        }
+/* Card */
+.product-card{background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s,box-shadow .18s;box-shadow:0 2px 8px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent}
+.product-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.product-card:active{transform:scale(.97)}
+.product-card.hidden{display:none}
+.image-box{width:100%;aspect-ratio:1;background:#f0f0f5;overflow:hidden;position:relative}
+.image-box img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s}
+.image-box img.loaded{opacity:1}
+.skeleton{position:absolute;inset:0;background:linear-gradient(90deg,#f0f0f5 25%,#e8e8ed 50%,#f0f0f5 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+.image-box img.loaded~.skeleton{display:none}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.info-box{padding:10px 12px 12px;flex-grow:1;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
+.product-name{font-size:.85rem;color:#333;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500;min-height:2.3rem}
+.product-price{font-size:1.05rem;font-weight:700;color:#c0001a}
+.product-price::before{content:"¥";font-size:.75rem;margin-right:1px}
 
-        .search-wrap {
-            flex: 1;
-            position: relative;
-        }
+/* No result */
+.no-result{display:none;text-align:center;padding:60px 20px;color:#999;font-size:.95rem;grid-column:1/-1}
+.no-result svg{width:48px;height:48px;stroke:#ccc;fill:none;stroke-width:1.5;margin:0 auto 12px;display:block}
 
-        .search-wrap svg {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px; height: 16px;
-            stroke: #999;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-        }
+/* Float bar */
+.float-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(0,0,0,.08);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.float-btn{flex:1;height:46px;border:none;border-radius:14px;font-size:.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent;transition:opacity .15s,transform .15s}
+.float-btn:active{opacity:.85;transform:scale(.97)}
+.float-btn.primary{background:#c0001a;color:#fff}
+.float-btn.secondary{background:#f5c518;color:#5a3e00}
+.float-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-        #searchInput {
-            width: 100%;
-            height: 36px;
-            border: none;
-            border-radius: 10px;
-            background: #ebebf0;
-            padding: 0 10px 0 32px;
-            font-size: 0.9rem;
-            outline: none;
-            color: #1d1d1f;
-        }
+/* Contact cards */
+.contact-section{max-width:600px;margin:16px auto 20px;padding:0 12px;display:flex;flex-direction:column;gap:12px}
+.contact-card{border-radius:16px;padding:20px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;transition:opacity .15s,transform .15s}
+.contact-card:active{opacity:.85;transform:scale(.99)}
+.contact-card.blue{background:linear-gradient(135deg,#e6f7f0,#d4f2e6);border:1px solid #b2e7d2;box-shadow:0 4px 12px rgba(212,242,230,.4)}
+.contact-card.blue h3{color:#0d6843;font-weight:700}
+.contact-card.blue p{color:#2e7a5b}
+.contact-card.blue .contact-pill{background:#129a63;box-shadow:0 2px 6px rgba(18,154,99,.2)}
+.contact-card.red{background:#fff0f0;border:1px solid #fbc4c4}
+.contact-card.yellow{background:#fffbec;border:1px solid #ffe082}
+.contact-card h3{font-size:1rem;margin-bottom:6px}
+.contact-card.red h3{color:#c0001a}
+.contact-card.yellow h3{color:#a07000}
+.contact-card p{font-size:.85rem;color:#555;margin-bottom:12px;line-height:1.5}
+.contact-pill{display:inline-block;padding:8px 22px;border-radius:20px;font-size:.85rem;font-weight:600;color:#fff;pointer-events:none}
+.contact-card.red .contact-pill{background:#c0001a}
+.contact-card.yellow .contact-pill{background:#b8860b}
 
-        #searchInput::placeholder { color: #aaa; }
-
-        .sort-btn {
-            height: 36px;
-            padding: 0 12px;
-            border: none;
-            border-radius: 10px;
-            background: #ebebf0;
-            font-size: 0.82rem;
-            color: #555;
-            cursor: pointer;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .sort-btn svg {
-            width: 14px; height: 14px;
-            stroke: #777; fill: none;
-            stroke-width: 2; stroke-linecap: round;
-        }
-
-        .sort-btn.active {
-            background: #c0001a;
-            color: #fff;
-        }
-
-        .sort-btn.active svg { stroke: #fff; }
-
-        /* ── 价格区间筛选 ── */
-        .filter-bar {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-            scrollbar-width: none;
-        }
-
-        .filter-bar::-webkit-scrollbar { display: none; }
-
-        .filter-chip {
-            flex-shrink: 0;
-            height: 28px;
-            padding: 0 12px;
-            border-radius: 14px;
-            border: 1px solid #ddd;
-            background: #fff;
-            font-size: 0.78rem;
-            color: #555;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.15s;
-        }
-
-        .filter-chip.active {
-            background: #c0001a;
-            border-color: #c0001a;
-            color: #fff;
-        }
-
-        /* ── 商品数量提示 ── */
-        .result-tip {
-            padding: 8px 16px 4px;
-            font-size: 0.78rem;
-            color: #999;
-        }
-
-        /* ── 商品网格 ── */
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 10px 12px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 600px) {
-            .product-grid { grid-template-columns: repeat(3, 1fr); }
-        }
-
-        @media (min-width: 900px) {
-            .product-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px 20px; }
-        }
-
-        @media (min-width: 1100px) {
-            .product-grid { grid-template-columns: repeat(5, 1fr); }
-        }
-
-        /* ── 商品卡片 ── */
-        .product-card {
-            background: #fff;
-            border-radius: 16px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
-            transition: transform 0.18s, box-shadow 0.18s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .product-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-        }
-
-        .product-card:active { transform: scale(0.97); }
-
-        .product-card.hidden { display: none; }
-
-        /* 图片懒加载 */
-        .image-box {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            background: #f0f0f5;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .image-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .image-box img.loaded { opacity: 1; }
-
-        /* 骨架屏占位 */
-        .skeleton {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, #f0f0f5 25%, #e8e8ed 50%, #f0f0f5 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.4s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .image-box img.loaded + .skeleton,
-        .image-box img.loaded ~ .skeleton { display: none; }
-
-        .info-box {
-            padding: 10px 12px 12px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 6px;
-        }
-
-        .product-name {
-            font-size: 0.85rem;
-            color: #333;
-            line-height: 1.35;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            font-weight: 500;
-            min-height: 2.3rem;
-        }
-
-        .product-price {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #c0001a;
-        }
-
-        .product-price::before { content: "¥"; font-size: 0.75rem; margin-right: 1px; }
-
-        /* ── 无结果提示 ── */
-        .no-result {
-            display: none;
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-            font-size: 0.95rem;
-            grid-column: 1 / -1;
-        }
-
-        .no-result svg {
-            width: 48px; height: 48px;
-            stroke: #ccc; fill: none;
-            stroke-width: 1.5;
-            margin-bottom: 12px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* ── 底部悬浮联系栏 ── */
-        .float-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0; right: 0;
-            z-index: 300;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0,0,0,0.08);
-            padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-            display: flex;
-            gap: 10px;
-        }
-
-        .float-btn {
-            flex: 1;
-            height: 46px;
-            border: none;
-            border-radius: 14px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            -webkit-tap-highlight-color: transparent;
-            transition: opacity 0.15s, transform 0.15s;
-        }
-
-        .float-btn:active { opacity: 0.85; transform: scale(0.97); }
-
-        .float-btn.primary {
-            background: #c0001a;
-            color: #fff;
-        }
-
-        .float-btn.secondary {
-            background: #f5c518;
-            color: #5a3e00;
-        }
-
-        .float-btn svg {
-            width: 18px; height: 18px;
-            stroke: currentColor; fill: none;
-            stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-        }
-
-        /* ── 没找到 + 备用微信卡片 ── */
-        .contact-section {
-            max-width: 600px;
-            margin: 16px auto 20px;
-            padding: 0 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .contact-card {
-            border-radius: 16px;
-            padding: 20px;
-            cursor: pointer;
-            text-align: center;
-            -webkit-tap-highlight-color: transparent;
-            transition: opacity 0.15s;
-        }
-
-        .contact-card:active { opacity: 0.8; }
-
-        .contact-card.red {
-            background: #fff0f0;
-            border: 1px solid #fbc4c4;
-        }
-
-        .contact-card.yellow {
-            background: #fffbec;
-            border: 1px solid #ffe082;
-        }
-
-        .contact-card h3 {
-            font-size: 1rem;
-            margin-bottom: 6px;
-        }
-
-        .contact-card.red h3 { color: #c0001a; }
-        .contact-card.yellow h3 { color: #a07000; }
-
-        .contact-card p {
-            font-size: 0.85rem;
-            color: #555;
-            margin-bottom: 12px;
-            line-height: 1.5;
-        }
-
-        .contact-pill {
-            display: inline-block;
-            padding: 8px 22px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #fff;
-            pointer-events: none;
-        }
-
-        .contact-card.red .contact-pill { background: #c0001a; }
-        .contact-card.yellow .contact-pill { background: #b8860b; }
-
-        /* ── 页脚 ── */
-        footer {
-            text-align: center;
-            padding: 16px 20px 24px;
-            color: #aaa;
-            font-size: 0.78rem;
-            border-top: 1px solid #e5e5e5;
-            background: #fff;
-        }
-
-        /* ── 置顶按钮 ── */
-        #backTop {
-            position: fixed;
-            right: 16px;
-            bottom: calc(80px + env(safe-area-inset-bottom) + 12px);
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.45);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s;
-            z-index: 250;
-        }
-
-        #backTop.show { opacity: 1; pointer-events: auto; }
-
-        #backTop svg {
-            width: 18px; height: 18px;
-            stroke: #fff; fill: none;
-            stroke-width: 2.5; stroke-linecap: round;
-        }
-    </style>
+/* Footer & Back-top */
+footer{text-align:center;padding:16px 20px 24px;color:#aaa;font-size:.78rem;border-top:1px solid #e5e5e5;background:#fff}
+#backTop{position:fixed;right:16px;bottom:calc(80px + env(safe-area-inset-bottom) + 12px);width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.45);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;z-index:250}
+#backTop.show{opacity:1;pointer-events:auto}
+#backTop svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+</style>
+<script>window.$crisp=[];window.$crisp.push(["safe",true]);window.CRISP_WEBSITE_ID="467148c7-43db-4c47-9781-8f68828dc766";(function(){var d=document,s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s)})();</script>
 </head>
 <body>
 
-<!-- 顶部导航 -->
 <header>
-    <div class="header-top">
-        <h1>烟草华章 · 尊享御品臻选</h1>
+  <div class="header-top"><h1>烟草华章 · 尊享御品臻选</h1></div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      <input id="searchInput" type="search" placeholder="搜索商品名称…" autocomplete="off">
     </div>
-    <div class="toolbar">
-        <div class="search-wrap">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-            <input id="searchInput" type="search" placeholder="搜索商品名称…" autocomplete="off">
-        </div>
-        <button class="sort-btn" id="sortBtn" onclick="toggleSort()">
-            <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
-            价格
-        </button>
-    </div>
-    <div class="filter-bar">
-        <button class="filter-chip active" data-min="0" data-max="99999" onclick="setFilter(this)">全部</button>
-        <button class="filter-chip" data-min="0" data-max="200" onclick="setFilter(this)">200以下</button>
-        <button class="filter-chip" data-min="200" data-max="400" onclick="setFilter(this)">200–400</button>
-        <button class="filter-chip" data-min="400" data-max="600" onclick="setFilter(this)">400–600</button>
-        <button class="filter-chip" data-min="600" data-max="99999" onclick="setFilter(this)">600以上</button>
-    </div>
+    <button class="sort-btn" id="sortBtn" onclick="toggleSort()">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>价格
+    </button>
+  </div>
+  <div class="filter-bar">
+    <button class="filter-chip active" data-min="0" data-max="99999" onclick="setFilter(this)">全部</button>
+    <button class="filter-chip" data-min="0" data-max="200" onclick="setFilter(this)">200以下</button>
+    <button class="filter-chip" data-min="200" data-max="400" onclick="setFilter(this)">200–400</button>
+    <button class="filter-chip" data-min="400" data-max="600" onclick="setFilter(this)">400–600</button>
+    <button class="filter-chip" data-min="600" data-max="99999" onclick="setFilter(this)">600以上</button>
+  </div>
 </header>
 
 <p class="result-tip" id="resultTip">共 20 款商品</p>
 
-<!-- 商品网格 -->
 <main class="product-grid" id="grid">
-
-    <div class="product-card" data-name="经典中华系列 软包正品口感纯正" data-price="480" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/PGkNFc4d/image.png" alt="经典中华系列 软包"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">经典中华系列 软包正品口感纯正</p><p class="product-price">480.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="经典中华系列 硬盒精装送礼首选" data-price="340" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/d0kqSF7D/image.png" alt="经典中华系列 硬盒"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">经典中华系列 硬盒精装送礼首选</p><p class="product-price">340.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="黄金叶木盒细" data-price="550" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/LhJK5vTg/image.png" alt="黄金叶木盒细"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">黄金叶木盒细黄金品质，纤细入微。一缕金香随风起，几多从容在心头</p><p class="product-price">550.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="黄金叶木盒中支" data-price="530" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/SbTkyHv/image.png" alt="黄金叶木盒中支"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">黄金叶木盒中支</p><p class="product-price">530.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="休闲云端木盒细" data-price="780" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/nNVrzv16/image.png" alt="休闲云端木盒细"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">休闲云端木盒细</p><p class="product-price">780.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="木盒和天下 硬盒经典 销量口碑之王" data-price="480" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/wZG7Z0DB/image.png" alt="木盒和天下"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">木盒和天下 硬盒经典 销量口碑之王</p><p class="product-price">480.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="木盒和天下细" data-price="550" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/Q7cgm4jq/image.png" alt="木盒和天下细"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">木盒和天下细</p><p class="product-price">550.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="硬阳光利群" data-price="360" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/s99cSLG8/image.png" alt="硬阳光利群"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">硬阳光利群</p><p class="product-price">360.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="软阳光利群" data-price="350" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/bMsXfM7c/image.png" alt="软阳光利群"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">软阳光利群</p><p class="product-price">350.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="江南韵利群" data-price="350" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/Z1TVYkh0/image.png" alt="江南韵利群"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">江南韵利群</p><p class="product-price">350.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="双开中支中华" data-price="450" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/sdtgtkVZ/image.png" alt="双开中支中华"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">双开中支中华</p><p class="product-price">450.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="礼盒九五至尊" data-price="880" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/PzjWR4xk/image.png" alt="礼盒九五至尊"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">礼盒九五至尊</p><p class="product-price">880.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="芙蓉王" data-price="190" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/mFYgfs1Y/image.png" alt="芙蓉王"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">芙蓉王</p><p class="product-price">190.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="花利群" data-price="560" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/xt6Z0D40/image.png" alt="花利群"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">花利群</p><p class="product-price">560.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="硬红长嘴利群" data-price="190" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/LXTSZcWS/image.png" alt="硬红长嘴利群"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">硬红长嘴利群</p><p class="product-price">190.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="软红长嘴利群" data-price="190" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/ZzgfhwWh/image.png" alt="软红长嘴利群"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">软红长嘴利群</p><p class="product-price">190.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="红白利群" data-price="150" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/BKccsk3b/image.png" alt="红白利群"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">红白利群</p><p class="product-price">150.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="雨花石" data-price="298" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/Q1DkqCK/image.png" alt="雨花石"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">雨花石</p><p class="product-price">298.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="限定休闲云端" data-price="850" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/5Wjvz9rr/image.png" alt="限定休闲云端"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">限定休闲云端</p><p class="product-price">850.00</p></div>
-    </div>
-
-    <div class="product-card" data-name="荷花中支" data-price="280" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
-        <div class="image-box"><img data-src="https://pic.feria.eu.org/wN2MxNcV/image.png" alt="荷花中支"><div class="skeleton"></div></div>
-        <div class="info-box"><p class="product-name">荷花中支</p><p class="product-price">280.00</p></div>
-    </div>
-
-    <!-- 无结果 -->
-    <div class="no-result" id="noResult">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-        暂无符合条件的商品，换个关键词试试？
-    </div>
-
+  <div class="product-card" data-name="经典中华系列 软包正品口感纯正" data-price="480" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/软中华.webp" alt="经典中华系列 软包"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">经典中华系列 软包正品口感纯正</p><p class="product-price">480.00</p></div>
+  </div>
+  <div class="product-card" data-name="经典中华系列 硬盒精装送礼首选" data-price="340" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/中华硬.webp" alt="经典中华系列 硬盒"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">经典中华系列 硬盒精装送礼首选</p><p class="product-price">340.00</p></div>
+  </div>
+  <div class="product-card" data-name="黄金叶木盒细" data-price="550" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/黄金叶木盒.webp" alt="黄金叶木盒细"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">黄金叶木盒细黄金品质，纤细入微。一缕金香随风起，几多从容在心头</p><p class="product-price">550.00</p></div>
+  </div>
+  <div class="product-card" data-name="黄金叶木盒中支" data-price="530" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/黄金叶细.webp" alt="黄金叶木盒中支"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">黄金叶木盒中支</p><p class="product-price">530.00</p></div>
+  </div>
+  <div class="product-card" data-name="休闲云端木盒细" data-price="780" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/休闲云端细.webp" alt="休闲云端木盒细"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">休闲云端木盒细</p><p class="product-price">780.00</p></div>
+  </div>
+  <div class="product-card" data-name="木盒和天下 硬盒经典 销量口碑之王" data-price="480" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/和天下木盒.webp" alt="木盒和天下"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">木盒和天下 硬盒经典 销量口碑之王</p><p class="product-price">480.00</p></div>
+  </div>
+  <div class="product-card" data-name="木盒和天下细" data-price="550" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/和天下细.webp" alt="木盒和天下细"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">木盒和天下细</p><p class="product-price">550.00</p></div>
+  </div>
+  <div class="product-card" data-name="硬阳光利群" data-price="360" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/硬阳光利群.webp" alt="硬阳光利群"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">硬阳光利群</p><p class="product-price">360.00</p></div>
+  </div>
+  <div class="product-card" data-name="软阳光利群" data-price="350" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/软阳光利群.webp" alt="软阳光利群"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">软阳光利群</p><p class="product-price">350.00</p></div>
+  </div>
+  <div class="product-card" data-name="江南韵利群" data-price="350" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/江南韵.webp" alt="江南韵利群"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">江南韵利群</p><p class="product-price">350.00</p></div>
+  </div>
+  <div class="product-card" data-name="双开中支中华" data-price="450" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/双开中支中华.webp" alt="双开中支中华"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">双开中支中华</p><p class="product-price">450.00</p></div>
+  </div>
+  <div class="product-card" data-name="礼盒九五至尊" data-price="880" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/礼盒九五至尊.webp" alt="礼盒九五至尊"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">礼盒九五至尊</p><p class="product-price">880.00</p></div>
+  </div>
+  <div class="product-card" data-name="芙蓉王" data-price="190" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/芙蓉王.webp" alt="芙蓉王"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">芙蓉王</p><p class="product-price">190.00</p></div>
+  </div>
+  <div class="product-card" data-name="花利群" data-price="560" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/花利群.webp" alt="花利群"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">花利群</p><p class="product-price">560.00</p></div>
+  </div>
+  <div class="product-card" data-name="硬红长嘴利群" data-price="190" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/硬红长嘴利群.webp" alt="硬红长嘴利群"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">硬红长嘴利群</p><p class="product-price">190.00</p></div>
+  </div>
+  <div class="product-card" data-name="软红长嘴利群" data-price="190" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/软红长嘴利群.webp" alt="软红长嘴利群"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">软红长嘴利群</p><p class="product-price">190.00</p></div>
+  </div>
+  <div class="product-card" data-name="红白利群" data-price="150" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/红白利群.webp" alt="红白利群"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">红白利群</p><p class="product-price">150.00</p></div>
+  </div>
+  <div class="product-card" data-name="雨花石" data-price="298" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/雨花石.webp" alt="雨花石"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">雨花石</p><p class="product-price">298.00</p></div>
+  </div>
+  <div class="product-card" data-name="限定休闲云端" data-price="850" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/休闲云端限定版.webp" alt="限定休闲云端"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">限定休闲云端</p><p class="product-price">850.00</p></div>
+  </div>
+  <div class="product-card" data-name="荷花中支" data-price="280" onclick="window.open('https://sps.yy-gp.com/h5vex/i.html','_blank')">
+    <div class="image-box"><img data-src="images/荷花硬.webp" alt="荷花中支"><div class="skeleton"></div></div>
+    <div class="info-box"><p class="product-name">荷花中支</p><p class="product-price">280.00</p></div>
+  </div>
+  <div class="no-result" id="noResult">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+    暂无符合条件的商品，换个关键词试试？
+  </div>
 </main>
 
-<!-- 联系卡片 -->
 <section class="contact-section">
-    <div class="contact-card red" onclick="copyWX('whatareyou033')">
-        <h3>🔍 没找到您要的款式？</h3>
-        <p>我们拥有全网最全一手货源，超多热销及稀缺款<b>未能及时上架</b>。</p>
-        <span class="contact-pill">👉 点击复制主微信：whatareyou033</span>
-    </div>
-    <div class="contact-card yellow" onclick="copyAndOpenWX('tyug6461')">
-        <h3>💬 备用微信号</h3>
-        <p>主号忙时可联系备用，同样一手货源，快速响应。</p>
-        <span class="contact-pill">👉 点击复制备用微信：tyug6461</span>
-    </div>
+  <div class="contact-card blue" onclick="window.open('https://1yanvip.github.io','_blank')">
+    <h3>🍃 在线咨询客服</h3>
+    <p>无需繁琐添加好友，点击直接与专属网页在线客服沟通，秒级即时响应。</p>
+    <span class="contact-pill">💬 点击前往在线聊天</span>
+  </div>
+  <div class="contact-card red" onclick="copyWX('whatareyou033')">
+    <h3>🔍 没找到您要的款式？</h3>
+    <p>我们拥有全网最全一手货源，超多热销及稀缺款<b>未能及时上架</b>。</p>
+    <span class="contact-pill">👉 点击复制主微信：whatareyou033</span>
+  </div>
+  <div class="contact-card yellow" onclick="copyAndOpenWX('tyug6461')">
+    <h3>💬 备用微信号</h3>
+    <p>主号忙时可联系备用，同样一手货源，快速响应。</p>
+    <span class="contact-pill">👉 点击复制备用微信：tyug6461</span>
+  </div>
 </section>
 
 <footer>© 2026 烟草华章 · 尊享御品臻选展示页 · 版权所有</footer>
 
-<!-- 底部悬浮联系栏 -->
 <div class="float-bar">
-    <button class="float-btn primary" onclick="copyWX('whatareyou033')">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        主微信问价
-    </button>
-    <button class="float-btn secondary" onclick="copyAndOpenWX('tyug6461')">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        备用微信
-    </button>
+  <button class="float-btn primary" onclick="copyWX('whatareyou033')">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>主微信问价
+  </button>
+  <button class="float-btn secondary" onclick="copyAndOpenWX('tyug6461')">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>备用微信
+  </button>
 </div>
 
-<!-- 置顶按钮 -->
 <button id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="回到顶部">
-    <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
 <script>
-// ── 图片懒加载 ──
-const imgObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const img = entry.target;
-            img.src = img.dataset.src;
-            img.onload = () => img.classList.add('loaded');
-            img.onerror = () => img.classList.add('loaded');
-            imgObserver.unobserve(img);
-        }
-    });
-}, { rootMargin: '200px' });
+// 图片懒加载
+const imgObs = new IntersectionObserver(entries => {
+  entries.forEach(({isIntersecting, target}) => {
+    if (!isIntersecting) return;
+    target.src = target.dataset.src;
+    target.onload = target.onerror = () => target.classList.add('loaded');
+    imgObs.unobserve(target);
+  });
+}, {rootMargin:'200px'});
+document.querySelectorAll('img[data-src]').forEach(img => imgObs.observe(img));
 
-document.querySelectorAll('img[data-src]').forEach(img => imgObserver.observe(img));
-
-// ── 搜索 + 筛选 + 排序状态 ──
-let filterMin = 0, filterMax = 99999;
-let sortAsc = false, sortActive = false;
-const cards = Array.from(document.querySelectorAll('.product-card[data-price]'));
+// 状态
+let filterMin = 0, filterMax = 99999, sortAsc = false, sortActive = false;
+const cards = [...document.querySelectorAll('.product-card[data-price]')];
 const noResult = document.getElementById('noResult');
 const resultTip = document.getElementById('resultTip');
+const grid = document.getElementById('grid');
 
 function applyAll() {
-    const kw = document.getElementById('searchInput').value.trim().toLowerCase();
-    let visible = [];
-
-    cards.forEach(c => {
-        const name = c.dataset.name.toLowerCase();
-        const price = parseFloat(c.dataset.price);
-        const show = (!kw || name.includes(kw)) && price >= filterMin && price <= filterMax;
-        c.classList.toggle('hidden', !show);
-        if (show) visible.push(c);
-    });
-
-    // 排序：把可见卡片重新插入网格
-    if (sortActive && visible.length > 1) {
-        visible.sort((a, b) => {
-            const diff = parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
-            return sortAsc ? diff : -diff;
-        });
-        const grid = document.getElementById('grid');
-        visible.forEach(c => grid.appendChild(c));
-    }
-
-    const count = visible.length;
-    noResult.style.display = count === 0 ? 'block' : 'none';
-    resultTip.textContent = kw || filterMin > 0 || filterMax < 99999
-        ? `找到 ${count} 款商品`
-        : `共 ${cards.length} 款商品`;
+  const kw = document.getElementById('searchInput').value.trim().toLowerCase();
+  const visible = cards.filter(c => {
+    const show = (!kw || c.dataset.name.toLowerCase().includes(kw))
+      && +c.dataset.price >= filterMin && +c.dataset.price <= filterMax;
+    c.classList.toggle('hidden', !show);
+    return show;
+  });
+  if (sortActive && visible.length > 1) {
+    visible.sort((a, b) => (+a.dataset.price - +b.dataset.price) * (sortAsc ? 1 : -1));
+    visible.forEach(c => grid.appendChild(c));
+  }
+  noResult.style.display = visible.length ? 'none' : 'block';
+  resultTip.textContent = (kw || filterMin > 0 || filterMax < 99999)
+    ? `找到 ${visible.length} 款商品` : `共 ${cards.length} 款商品`;
 }
 
 document.getElementById('searchInput').addEventListener('input', applyAll);
 
 function setFilter(btn) {
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    btn.classList.add('active');
-    filterMin = parseFloat(btn.dataset.min);
-    filterMax = parseFloat(btn.dataset.max);
-    applyAll();
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  filterMin = +btn.dataset.min;
+  filterMax = +btn.dataset.max;
+  applyAll();
 }
 
 function toggleSort() {
-    const btn = document.getElementById('sortBtn');
-    if (!sortActive) {
-        sortActive = true; sortAsc = true;
-        btn.classList.add('active');
-        btn.innerHTML = btn.innerHTML.replace('价格', '价格 ↑');
-    } else if (sortAsc) {
-        sortAsc = false;
-        btn.innerHTML = btn.innerHTML.replace('↑', '↓');
-    } else {
-        sortActive = false;
-        btn.classList.remove('active');
-        btn.innerHTML = btn.innerHTML.replace(' ↓', '');
-        // 恢复原始顺序
-        const grid = document.getElementById('grid');
-        cards.forEach(c => grid.appendChild(c));
-    }
-    applyAll();
+  const btn = document.getElementById('sortBtn');
+  const label = btn.lastChild;
+  if (!sortActive) {
+    sortActive = sortAsc = true;
+    btn.classList.add('active');
+    label.textContent = ' 价格 ↑';
+  } else if (sortAsc) {
+    sortAsc = false;
+    label.textContent = ' 价格 ↓';
+  } else {
+    sortActive = false;
+    btn.classList.remove('active');
+    label.textContent = ' 价格';
+    cards.forEach(c => grid.appendChild(c));
+  }
+  applyAll();
 }
 
-// ── 置顶按钮 ──
-const backTop = document.getElementById('backTop');
-window.addEventListener('scroll', () => {
-    backTop.classList.toggle('show', window.scrollY > 400);
-}, { passive: true });
+// 置顶
+window.addEventListener('scroll', () =>
+  document.getElementById('backTop').classList.toggle('show', scrollY > 400), {passive:true});
 
-// ── 微信复制 ──
+// 微信复制
 function copyWX(text) {
-    setTimeout(() => { window.location.href = 'weixin://'; }, 800);
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text)
-            .then(() => alert('🎉 复制成功！\n微信号【' + text + '】已复制。\n打开微信 → 添加朋友 → 粘贴即可！'))
-            .catch(() => fallbackCopy(text));
-    } else {
-        fallbackCopy(text);
-    }
+  setTimeout(() => location.href = 'weixin://', 800);
+  const msg = `🎉 复制成功！\n微信号【${text}】已复制。\n打开微信 → 添加朋友 → 粘贴即可！`;
+  (navigator.clipboard?.writeText(text) ?? Promise.reject())
+    .then(() => alert(msg))
+    .catch(() => {
+      const ta = Object.assign(document.createElement('textarea'), {
+        value: text, style: 'position:fixed;opacity:0'
+      });
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, 99999);
+      try { document.execCommand('copy') ? alert(msg) : alert('请手动复制微信号：' + text); }
+      catch { alert('请手动复制微信号：' + text); }
+      document.body.removeChild(ta);
+    });
 }
 
-function copyAndOpenWX(text) {
-    copyWX(text);
-    setTimeout(() => { window.location.href = 'weixin://'; }, 800);
-}
-
-function fallbackCopy(text) {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    Object.assign(ta.style, { position:'fixed', top:0, left:0, width:'1px', height:'1px', opacity:0 });
-    document.body.appendChild(ta);
-    ta.select(); ta.setSelectionRange(0, 99999);
-    try {
-        document.execCommand('copy')
-            ? alert('🎉 复制成功！\n微信号【' + text + '】已复制。\n打开微信添加好友！')
-            : alert('请手动复制微信号：' + text);
-    } catch(e) {
-        alert('请手动复制微信号：' + text);
-    }
-    document.body.removeChild(ta);
-}
+function copyAndOpenWX(text) { copyWX(text); }
 </script>
 </body>
 </html>
